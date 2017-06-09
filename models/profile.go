@@ -87,7 +87,7 @@ func (prp *PRProfile) Create(c context.Context, r *http.Request, currentUser api
 * Update methods
  */
 
-// Function to save a new contact into App Engine
+// Function to save a new journalist profile into App Engine
 func (jp *JournalistProfile) Save(c context.Context, r *http.Request) (*JournalistProfile, error) {
 	// Update the Updated time
 	jp.Updated = time.Now()
@@ -101,7 +101,7 @@ func (jp *JournalistProfile) Save(c context.Context, r *http.Request) (*Journali
 	return jp, nil
 }
 
-// Function to save a new contact into App Engine
+// Function to save a new pr profile into App Engine
 func (prp *PRProfile) Save(c context.Context, r *http.Request) (*PRProfile, error) {
 	// Update the Updated time
 	prp.Updated = time.Now()
