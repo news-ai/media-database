@@ -1,6 +1,6 @@
 package models
 
-type EnhanceProfileResponse struct {
+type MediaDatabaseProfileResponse struct {
 	Data struct {
 		// Full Contact Data
 		Status        int `json:"status"`
