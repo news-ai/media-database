@@ -1,6 +1,10 @@
 package models
 
-type MediaDatabaseProfileResponse struct {
+import (
+	"time"
+)
+
+type MediaDatabaseProfile struct {
 	Data struct {
 		// Full Contact Data
 		Status        int `json:"status"`
