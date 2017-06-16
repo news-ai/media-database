@@ -21,6 +21,10 @@ func handleDatabaseContact(c context.Context, r *http.Request, id string) (inter
 	switch r.Method {
 	case "GET":
 		return api.BaseSingleResponseHandler(controllers.GetMediaDatabaseProfile(c, r, id))
+	case "PATCH":
+		return api.BaseSingleResponseHandler(controllers.UpdateContactInMediaDatabase(c, r, id))
+	case "DELETE":
+		return api.BaseSingleResponseHandler(controllers.DeleteContactFromMediaDatabase(c, r, id))
 	}
 	return nil, errors.New("method not implemented")
 }
@@ -29,6 +33,9 @@ func handleDatabaseContacts(c context.Context, r *http.Request) (interface{}, er
 	switch r.Method {
 	case "GET":
 		val, included, count, total, err := controllers.GetMediaDatabaseProfiles(c, r)
+		return api.BaseResponseHandler(val, included, count, total, err, r)
+	case "POST":
+		val, included, count, total, err := controllers.CreateContactInMediaDatabase(c, r)
 		return api.BaseResponseHandler(val, included, count, total, err, r)
 	}
 	return nil, errors.New("method not implemented")
