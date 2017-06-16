@@ -26,6 +26,11 @@ func handleDatabaseContact(c context.Context, r *http.Request, id string) (inter
 }
 
 func handleDatabaseContacts(c context.Context, r *http.Request) (interface{}, error) {
+	switch r.Method {
+	case "GET":
+		val, included, count, total, err := controllers.GetMediaDatabaseProfiles(c, r)
+		return api.BaseResponseHandler(val, included, count, total, err, r)
+	}
 	return nil, errors.New("method not implemented")
 }
 
