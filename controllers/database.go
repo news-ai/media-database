@@ -1,13 +1,17 @@
 package controllers
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"golang.org/x/net/context"
 
 	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/urlfetch"
 
 	"github.com/pquerna/ffjson/ffjson"
 
@@ -27,6 +31,7 @@ type createMediaDatabaseContact struct {
 		Beats           []string `json:"beats"`
 		OccasionalBeats []string `json:"occasionalBeats"`
 		IsFreelancer    bool     `json:"isFreelancer"`
+		RSS             []string `json:"rss"`
 	} `json:"writingInformation"`
 }
 
@@ -83,13 +88,33 @@ func CreateContactInMediaDatabase(c context.Context, r *http.Request) (interface
 	}
 
 	// Alter contact details before writing it to Media Database
+	contactProfile.Data.Email = createContact.Email
 	contactProfile.Data.WritingInformation = createContact.WritingInformation
 
-	log.Infof(c, "%v", contactProfile)
-
 	// Add contact to Media Database with approved flag off
+	contextWithTimeout, _ := context.WithTimeout(c, time.Second*15)
+	client := urlfetch.Client(contextWithTimeout)
 
-	return contactProfile, nil, 1, 0, nil
+	ContactProfile, err := json.Marshal(contactProfile)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return models.MediaDatabaseProfile{}, nil, 0, 0, err
+	}
+	contactProfileJson := bytes.NewReader(ContactProfile)
+	req, _ := http.NewRequest("POST", "https://enhance.newsai.org/md", contactProfileJson)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return models.MediaDatabaseProfile{}, nil, 0, 0, err
+	}
+
+	if resp.StatusCode != 200 {
+		return models.MediaDatabaseProfile{}, nil, 0, 0, errors.New("Fail to POST data to Enhance")
+	}
+
+	return contactProfile.Data, nil, 1, 0, nil
 }
 
 /*
@@ -104,6 +129,6 @@ func UpdateContactInMediaDatabase(c context.Context, r *http.Request, email stri
 * Delete methods
  */
 
-func DeleteContactFromMediaDatabase(c context.Context, r *http.Request) {
-
+func DeleteContactFromMediaDatabase(c context.Context, r *http.Request, email string) (interface{}, interface{}, error) {
+	return nil, nil, nil
 }

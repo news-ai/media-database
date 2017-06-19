@@ -7,7 +7,8 @@ import (
 type MediaDatabaseProfile struct {
 	Data struct {
 		// Full Contact Data
-		Status        int `json:"status"`
+		Status        int    `json:"status"`
+		Email         string `json:"email"`
 		Organizations []struct {
 			StartDate string `json:"startDate,omitempty"`
 			EndDate   string `json:"endDate,omitempty"`
@@ -84,6 +85,7 @@ type MediaDatabaseProfile struct {
 			Beats           []string `json:"beats"`
 			OccasionalBeats []string `json:"occasionalBeats"`
 			IsFreelancer    bool     `json:"isFreelancer"`
+			RSS             []string `json:"rss"`
 		} `json:"writingInformation"`
 
 		ToUpdate bool `json:"toUpdate"`
