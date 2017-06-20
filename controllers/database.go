@@ -54,7 +54,11 @@ func GetMediaDatabaseProfile(c context.Context, r *http.Request, email string) (
 		return models.MediaDatabaseProfile{}, nil, err
 	}
 
-	return contactProfile, nil, err
+	if contactProfile.Data.Status != 200 {
+		return models.MediaDatabaseProfile{}, nil, errors.New("Contact does not exist in Enhance")
+	}
+
+	return contactProfile.Data, nil, err
 }
 
 /*
@@ -88,6 +92,9 @@ func CreateContactInMediaDatabase(c context.Context, r *http.Request) (interface
 	}
 
 	// Alter contact details before writing it to Media Database
+	contactProfile.Data.Created = time.Now()
+	contactProfile.Data.Updated = time.Now()
+	contactProfile.Data.ToUpdate = false
 	contactProfile.Data.Email = createContact.Email
 	contactProfile.Data.WritingInformation = createContact.WritingInformation
 
@@ -122,7 +129,49 @@ func CreateContactInMediaDatabase(c context.Context, r *http.Request) (interface
  */
 
 func UpdateContactInMediaDatabase(c context.Context, r *http.Request, email string) (interface{}, interface{}, error) {
-	return nil, nil, nil
+	buf, _ := ioutil.ReadAll(r.Body)
+	decoder := ffjson.NewDecoder()
+	var createContact createMediaDatabaseContact
+	err := decoder.Decode(buf, &createContact)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return models.MediaDatabaseProfile{}, nil, err
+	}
+
+	contactProfile, err := search.SearchContactInMediaDatabase(c, r, email)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return models.MediaDatabaseProfile{}, nil, err
+	}
+
+	// Alter contact details before writing it to Media Database
+	contactProfile.Data.Updated = time.Now()
+	contactProfile.Data.WritingInformation = createContact.WritingInformation
+
+	// Add contact to Media Database with approved flag off
+	contextWithTimeout, _ := context.WithTimeout(c, time.Second*15)
+	client := urlfetch.Client(contextWithTimeout)
+
+	ContactProfile, err := json.Marshal(contactProfile)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return models.MediaDatabaseProfile{}, nil, err
+	}
+	contactProfileJson := bytes.NewReader(ContactProfile)
+	req, _ := http.NewRequest("POST", "https://enhance.newsai.org/md", contactProfileJson)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return models.MediaDatabaseProfile{}, nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		return models.MediaDatabaseProfile{}, nil, errors.New("Fail to POST data to Enhance")
+	}
+
+	return contactProfile.Data, nil, nil
 }
 
 /*
