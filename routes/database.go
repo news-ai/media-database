@@ -17,14 +17,29 @@ import (
 	nError "github.com/news-ai/web/errors"
 )
 
-func handleDatabaseContact(c context.Context, r *http.Request, id string) (interface{}, error) {
+func handleDatabaseContactAction(c context.Context, r *http.Request, email string, action string) (interface{}, error) {
 	switch r.Method {
 	case "GET":
-		return api.BaseSingleResponseHandler(controllers.GetMediaDatabaseProfile(c, r, id))
+		switch action {
+		case "tweets":
+			val, included, count, total, err := controllers.GetTweetsForContact(c, r, email)
+			return api.BaseResponseHandler(val, included, count, total, err, r)
+		case "headlines":
+			val, included, count, total, err := controllers.GetHeadlinesForContact(c, r, email)
+			return api.BaseResponseHandler(val, included, count, total, err, r)
+		}
+	}
+	return nil, errors.New("method not implemented")
+}
+
+func handleDatabaseContact(c context.Context, r *http.Request, email string) (interface{}, error) {
+	switch r.Method {
+	case "GET":
+		return api.BaseSingleResponseHandler(controllers.GetMediaDatabaseProfile(c, r, email))
 	case "PATCH":
-		return api.BaseSingleResponseHandler(controllers.UpdateContactInMediaDatabase(c, r, id))
+		return api.BaseSingleResponseHandler(controllers.UpdateContactInMediaDatabase(c, r, email))
 	case "DELETE":
-		return api.BaseSingleResponseHandler(controllers.DeleteContactFromMediaDatabase(c, r, id))
+		return api.BaseSingleResponseHandler(controllers.DeleteContactFromMediaDatabase(c, r, email))
 	}
 	return nil, errors.New("method not implemented")
 }
@@ -70,6 +85,23 @@ func MediaDatabaseContactHandler(w http.ResponseWriter, r *http.Request, ps http
 
 	if err != nil {
 		nError.ReturnError(w, http.StatusInternalServerError, "Media Database handling error", err.Error())
+	}
+	return
+}
+
+func MediaDatabaseContactActionHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json")
+	c := appengine.NewContext(r)
+	id := ps.ByName("id")
+	action := ps.ByName("action")
+	val, err := handleDatabaseContactAction(c, r, id, action)
+
+	if err == nil {
+		err = ffjson.NewEncoder(w).Encode(val)
+	}
+
+	if err != nil {
+		nError.ReturnError(w, http.StatusInternalServerError, "Contact handling error", err.Error())
 	}
 	return
 }

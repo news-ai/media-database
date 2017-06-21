@@ -17,6 +17,8 @@ import (
 
 	"github.com/news-ai/pitch/models"
 
+	tabulaeModels "github.com/news-ai/tabulae/models"
+
 	"github.com/news-ai/api/search"
 )
 
@@ -36,6 +38,24 @@ type createMediaDatabaseContact struct {
 }
 
 /*
+* Get methods
+ */
+
+func getMediaDatabaseProfile(c context.Context, r *http.Request, email string) (models.MediaDatabaseProfile, error) {
+	contactProfile, err := search.SearchContactInMediaDatabase(c, r, email)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return models.MediaDatabaseProfile{}, err
+	}
+
+	if contactProfile.Data.Status != 200 {
+		return models.MediaDatabaseProfile{}, errors.New("Contact does not exist in Enhance")
+	}
+
+	return contactProfile, err
+}
+
+/*
 * Public methods
  */
 
@@ -44,21 +64,67 @@ type createMediaDatabaseContact struct {
  */
 
 func GetMediaDatabaseProfiles(c context.Context, r *http.Request) (interface{}, interface{}, int, int, error) {
-	return nil, nil, 0, 0, nil
+	contacts, hits, total, err := search.SearchESMediaDatabase(c, r)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return contacts, nil, 0, 0, err
+	}
+
+	return contacts, nil, hits, total, nil
 }
 
 func GetMediaDatabaseProfile(c context.Context, r *http.Request, email string) (interface{}, interface{}, error) {
-	contactProfile, err := search.SearchContactInMediaDatabase(c, r, email)
+	contactProfile, err := getMediaDatabaseProfile(c, r, email)
 	if err != nil {
 		log.Errorf(c, "%v", err)
 		return models.MediaDatabaseProfile{}, nil, err
 	}
 
-	if contactProfile.Data.Status != 200 {
-		return models.MediaDatabaseProfile{}, nil, errors.New("Contact does not exist in Enhance")
+	return contactProfile.Data, nil, nil
+}
+
+func GetTweetsForContact(c context.Context, r *http.Request, email string) (interface{}, interface{}, int, int, error) {
+	contact, err := getMediaDatabaseProfile(c, r, email)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return nil, nil, 0, 0, err
 	}
 
-	return contactProfile.Data, nil, err
+	twitterUsername := ""
+	for i := 0; i < len(contact.Data.SocialProfiles); i++ {
+		if contact.Data.SocialProfiles[i].TypeID == "twitter" {
+			twitterUsername = contact.Data.SocialProfiles[i].Username
+		}
+	}
+
+	tweets, total, err := search.SearchTweetsByUsername(c, r, twitterUsername)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return nil, nil, 0, 0, err
+	}
+
+	return tweets, nil, len(tweets), total, nil
+}
+
+func GetHeadlinesForContact(c context.Context, r *http.Request, email string) ([]search.Headline, interface{}, int, int, error) {
+	contact, err := getMediaDatabaseProfile(c, r, email)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return nil, nil, 0, 0, err
+	}
+
+	if len(contact.Data.WritingInformation.RSS) == 0 {
+		log.Errorf(c, "%v", err)
+		return nil, nil, 0, 0, errors.New("This contact has no RSS feeds")
+	}
+
+	headlines, total, err := search.SearchHeadlinesByResourceId(c, r, []tabulaeModels.Feed{}, contact.Data.WritingInformation.RSS)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return nil, nil, 0, 0, err
+	}
+
+	return headlines, nil, len(headlines), total, nil
 }
 
 /*
