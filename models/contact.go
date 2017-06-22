@@ -90,6 +90,8 @@ type MediaDatabaseProfile struct {
 
 		ToUpdate bool `json:"toUpdate"`
 
+		IsOutdated bool `json:"isOutdated"`
+
 		Created time.Time `json:"created"`
 		Updated time.Time `json:"updated"`
 	} `json:"data"`

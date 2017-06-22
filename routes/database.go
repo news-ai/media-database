@@ -27,6 +27,10 @@ func handleDatabaseContactAction(c context.Context, r *http.Request, email strin
 		case "headlines":
 			val, included, count, total, err := controllers.GetHeadlinesForContact(c, r, email)
 			return api.BaseResponseHandler(val, included, count, total, err, r)
+		case "twitterprofile":
+			return api.BaseSingleResponseHandler(controllers.GetTwitterProfileForContact(c, r, email))
+		case "twittertimeseries":
+			return api.BaseSingleResponseHandler(controllers.GetTwitterTimeseriesForContact(c, r, email))
 		}
 	}
 	return nil, errors.New("method not implemented")

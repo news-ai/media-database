@@ -55,6 +55,17 @@ func getMediaDatabaseProfile(c context.Context, r *http.Request, email string) (
 	return contactProfile, err
 }
 
+func getMediaDatabaseContactTwitterUsername(c context.Context, r *http.Request, contact models.MediaDatabaseProfile) string {
+	twitterUsername := ""
+	for i := 0; i < len(contact.Data.SocialProfiles); i++ {
+		if contact.Data.SocialProfiles[i].TypeID == "twitter" {
+			twitterUsername = contact.Data.SocialProfiles[i].Username
+		}
+	}
+
+	return twitterUsername
+}
+
 /*
 * Public methods
  */
@@ -83,28 +94,9 @@ func GetMediaDatabaseProfile(c context.Context, r *http.Request, email string) (
 	return contactProfile.Data, nil, nil
 }
 
-func GetTweetsForContact(c context.Context, r *http.Request, email string) (interface{}, interface{}, int, int, error) {
-	contact, err := getMediaDatabaseProfile(c, r, email)
-	if err != nil {
-		log.Errorf(c, "%v", err)
-		return nil, nil, 0, 0, err
-	}
-
-	twitterUsername := ""
-	for i := 0; i < len(contact.Data.SocialProfiles); i++ {
-		if contact.Data.SocialProfiles[i].TypeID == "twitter" {
-			twitterUsername = contact.Data.SocialProfiles[i].Username
-		}
-	}
-
-	tweets, total, err := search.SearchTweetsByUsername(c, r, twitterUsername)
-	if err != nil {
-		log.Errorf(c, "%v", err)
-		return nil, nil, 0, 0, err
-	}
-
-	return tweets, nil, len(tweets), total, nil
-}
+/*
+* RSS methods
+ */
 
 func GetHeadlinesForContact(c context.Context, r *http.Request, email string) ([]search.Headline, interface{}, int, int, error) {
 	contact, err := getMediaDatabaseProfile(c, r, email)
@@ -125,6 +117,62 @@ func GetHeadlinesForContact(c context.Context, r *http.Request, email string) ([
 	}
 
 	return headlines, nil, len(headlines), total, nil
+}
+
+/*
+* Twitter methods
+ */
+
+func GetTweetsForContact(c context.Context, r *http.Request, email string) (interface{}, interface{}, int, int, error) {
+	contact, err := getMediaDatabaseProfile(c, r, email)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return nil, nil, 0, 0, err
+	}
+
+	twitterUsername := getMediaDatabaseContactTwitterUsername(c, r, contact)
+	tweets, total, err := search.SearchTweetsByUsername(c, r, twitterUsername)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return nil, nil, 0, 0, err
+	}
+
+	return tweets, nil, len(tweets), total, nil
+}
+
+func GetTwitterProfileForContact(c context.Context, r *http.Request, email string) (interface{}, interface{}, error) {
+	contact, err := getMediaDatabaseProfile(c, r, email)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return nil, nil, err
+	}
+
+	twitterUsername := getMediaDatabaseContactTwitterUsername(c, r, contact)
+	twitterProfile, err := search.SearchProfileByUsername(c, r, twitterUsername)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return nil, nil, err
+	}
+
+	return twitterProfile, nil, nil
+}
+
+func GetTwitterTimeseriesForContact(c context.Context, r *http.Request, email string) (interface{}, interface{}, error) {
+	// Get the details of the current user
+	contact, err := getMediaDatabaseProfile(c, r, email)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return nil, nil, err
+	}
+
+	twitterUsername := getMediaDatabaseContactTwitterUsername(c, r, contact)
+	twitterTimeseries, _, err := search.SearchTwitterTimeseriesByUsername(c, r, twitterUsername)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return nil, nil, err
+	}
+
+	return twitterTimeseries, nil, nil
 }
 
 /*
