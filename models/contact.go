@@ -33,9 +33,9 @@ type MediaDatabaseProfile struct {
 			URL       string `json:"url"`
 			TypeName  string `json:"typeName"`
 			Type      string `json:"type"`
-			Followers int    `json:"followers,omitempty"`
+			Followers int    `json:"-"`
 			ID        string `json:"id,omitempty"`
-			Following int    `json:"following,omitempty"`
+			Following int    `json:"-"`
 		} `json:"socialProfiles"`
 		Demographics struct {
 			LocationDeduced struct {

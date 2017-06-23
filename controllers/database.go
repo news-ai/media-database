@@ -16,6 +16,7 @@ import (
 	"github.com/pquerna/ffjson/ffjson"
 
 	"github.com/news-ai/pitch/models"
+	"github.com/news-ai/pitch/sync"
 
 	tabulaeModels "github.com/news-ai/tabulae/models"
 
@@ -55,15 +56,15 @@ func getMediaDatabaseProfile(c context.Context, r *http.Request, email string) (
 	return contactProfile, err
 }
 
-func getMediaDatabaseContactTwitterUsername(c context.Context, r *http.Request, contact models.MediaDatabaseProfile) string {
-	twitterUsername := ""
+func getMediaDatabaseContactSocialNetworkUsername(c context.Context, r *http.Request, contact models.MediaDatabaseProfile, socialNetwork string) string {
+	username := ""
 	for i := 0; i < len(contact.Data.SocialProfiles); i++ {
-		if contact.Data.SocialProfiles[i].TypeID == "twitter" {
-			twitterUsername = contact.Data.SocialProfiles[i].Username
+		if contact.Data.SocialProfiles[i].TypeID == socialNetwork {
+			username = contact.Data.SocialProfiles[i].Username
 		}
 	}
 
-	return twitterUsername
+	return username
 }
 
 /*
@@ -130,7 +131,7 @@ func GetTweetsForContact(c context.Context, r *http.Request, email string) (inte
 		return nil, nil, 0, 0, err
 	}
 
-	twitterUsername := getMediaDatabaseContactTwitterUsername(c, r, contact)
+	twitterUsername := getMediaDatabaseContactSocialNetworkUsername(c, r, contact, "twitter")
 	tweets, total, err := search.SearchTweetsByUsername(c, r, twitterUsername)
 	if err != nil {
 		log.Errorf(c, "%v", err)
@@ -147,7 +148,7 @@ func GetTwitterProfileForContact(c context.Context, r *http.Request, email strin
 		return nil, nil, err
 	}
 
-	twitterUsername := getMediaDatabaseContactTwitterUsername(c, r, contact)
+	twitterUsername := getMediaDatabaseContactSocialNetworkUsername(c, r, contact, "twitter")
 	twitterProfile, err := search.SearchProfileByUsername(c, r, twitterUsername)
 	if err != nil {
 		log.Errorf(c, "%v", err)
@@ -165,7 +166,7 @@ func GetTwitterTimeseriesForContact(c context.Context, r *http.Request, email st
 		return nil, nil, err
 	}
 
-	twitterUsername := getMediaDatabaseContactTwitterUsername(c, r, contact)
+	twitterUsername := getMediaDatabaseContactSocialNetworkUsername(c, r, contact, "twitter")
 	twitterTimeseries, _, err := search.SearchTwitterTimeseriesByUsername(c, r, twitterUsername)
 	if err != nil {
 		log.Errorf(c, "%v", err)
@@ -233,6 +234,12 @@ func CreateContactInMediaDatabase(c context.Context, r *http.Request) (interface
 
 	if resp.StatusCode != 200 {
 		return models.MediaDatabaseProfile{}, nil, 0, 0, errors.New("Fail to POST data to Enhance")
+	}
+
+	twitterUsername := getMediaDatabaseContactSocialNetworkUsername(c, r, contactProfile, "twitter")
+	err = sync.TwitterSync(r, twitterUsername)
+	if err != nil {
+		log.Errorf(c, "%v", err)
 	}
 
 	return contactProfile.Data, nil, 1, 0, nil
