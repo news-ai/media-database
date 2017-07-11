@@ -4,6 +4,25 @@ import (
 	"time"
 )
 
+type WritingInformation struct {
+	Beats           []string `json:"beats"`
+	OccasionalBeats []string `json:"occasionalBeats"`
+	IsFreelancer    bool     `json:"isFreelancer"`
+	RSS             []string `json:"rss"`
+}
+
+type SocialProfiles struct {
+	Username  string `json:"username,omitempty"`
+	Bio       string `json:"bio,omitempty"`
+	TypeID    string `json:"typeId"`
+	URL       string `json:"url"`
+	TypeName  string `json:"typeName"`
+	Type      string `json:"type"`
+	Followers int    `json:"-"`
+	ID        string `json:"id,omitempty"`
+	Following int    `json:"-"`
+}
+
 type MediaDatabaseProfile struct {
 	Data struct {
 		// Full Contact Data
@@ -26,18 +45,8 @@ type MediaDatabaseProfile struct {
 				Provider string `json:"provider"`
 			} `json:"scores"`
 		} `json:"digitalFootprint"`
-		SocialProfiles []struct {
-			Username  string `json:"username,omitempty"`
-			Bio       string `json:"bio,omitempty"`
-			TypeID    string `json:"typeId"`
-			URL       string `json:"url"`
-			TypeName  string `json:"typeName"`
-			Type      string `json:"type"`
-			Followers int    `json:"-"`
-			ID        string `json:"id,omitempty"`
-			Following int    `json:"-"`
-		} `json:"socialProfiles"`
-		Demographics struct {
+		SocialProfiles []SocialProfiles `json:"socialProfiles"`
+		Demographics   struct {
 			LocationDeduced struct {
 				City struct {
 					Name string `json:"name"`
@@ -81,12 +90,7 @@ type MediaDatabaseProfile struct {
 		Likelihood float64 `json:"likelihood"`
 
 		// NewsAI Data
-		WritingInformation struct {
-			Beats           []string `json:"beats"`
-			OccasionalBeats []string `json:"occasionalBeats"`
-			IsFreelancer    bool     `json:"isFreelancer"`
-			RSS             []string `json:"rss"`
-		} `json:"writingInformation"`
+		WritingInformation WritingInformation `json:"writingInformation"`
 
 		ToUpdate bool `json:"toUpdate"`
 

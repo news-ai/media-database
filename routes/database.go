@@ -105,7 +105,7 @@ func MediaDatabaseContactActionHandler(w http.ResponseWriter, r *http.Request, p
 	}
 
 	if err != nil {
-		nError.ReturnError(w, http.StatusInternalServerError, "Contact handling error", err.Error())
+		nError.ReturnError(w, http.StatusInternalServerError, "Media Database handling error", err.Error())
 	}
 	return
 }

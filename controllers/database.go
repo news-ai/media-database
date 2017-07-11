@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"golang.org/x/net/context"
@@ -36,6 +37,16 @@ type createMediaDatabaseContact struct {
 		IsFreelancer    bool     `json:"isFreelancer"`
 		RSS             []string `json:"rss"`
 	} `json:"writingInformation"`
+
+	SocialInformation struct {
+		TwitterUsername  string `json:"twitterusername"`
+		LinkedinUsername string `json:"linkedinusername"`
+		FacebookUsername string `json:"facebookusername"`
+	} `json:"socialInformation"`
+
+	PersonalInformation struct {
+		Location string `json:"location"`
+	} `json:"personalInformation"`
 }
 
 /*
@@ -190,6 +201,8 @@ func CreateContactInMediaDatabase(c context.Context, r *http.Request) (interface
 		return models.MediaDatabaseProfile{}, nil, 0, 0, err
 	}
 
+	createContact.Email = strings.ToLower(createContact.Email)
+
 	// Check if contact already exists in Media Database
 	_, err = search.SearchContactInMediaDatabase(c, r, createContact.Email)
 	if err == nil {
@@ -290,6 +303,12 @@ func UpdateContactInMediaDatabase(c context.Context, r *http.Request, email stri
 
 	if resp.StatusCode != 200 {
 		return models.MediaDatabaseProfile{}, nil, errors.New("Fail to POST data to Enhance")
+	}
+
+	twitterUsername := getMediaDatabaseContactSocialNetworkUsername(c, r, contactProfile, "twitter")
+	err = sync.TwitterSync(r, twitterUsername)
+	if err != nil {
+		log.Errorf(c, "%v", err)
 	}
 
 	return contactProfile.Data, nil, nil
