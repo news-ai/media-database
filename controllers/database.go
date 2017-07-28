@@ -33,25 +33,30 @@ type searchMediaDatabaseInner struct {
 	OccasionalBeats []string `json:"occasionalBeats"`
 	IsFreelancer    bool     `json:"isFreelancer"`
 
-	Location string `json:"location"`
-
+	Locations     []string `json:"locations"`
 	Organizations []string `json:"organizations"`
 
+	// Search RSS-related fields
 	RSS struct {
-		Headline        string `json:"headline"`
-		IncludeNewsBody bool   `json:"searchNewsBody"`
+		Headline    string `json:"headline"`
+		IncludeBody bool   `json:"includeBody"`
 	} `json:"rss"`
 
-	// Search Instagram description
+	// Search Instagram-related fields
 	Instagram struct {
 		Description string `json:"description"`
 	} `json:"instagram"`
 
-	// Search Twitter-related things
+	// Search Twitter-related fields
 	Twitter struct {
-		Body            string `json:"body"`
+		TweetBody       string `json:"tweetbody"`
 		UserDescription string `json:"userDescription"`
 	} `json:"twitter"`
+
+	Time struct {
+		From time.Time `json:"from"`
+		To   time.Time `json:"to"`
+	} `json:"time"`
 }
 
 type searchMediaDatabase struct {
