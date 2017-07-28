@@ -147,7 +147,7 @@ func GetMediaDatabaseProfile(c context.Context, r *http.Request, email string) (
  */
 
 func SearchContactsInMediaDatabase(c context.Context, r *http.Request) (interface{}, interface{}, int, int, error) {
-
+	return nil, nil, 0, 0, nil
 }
 
 /*
@@ -162,7 +162,6 @@ func GetHeadlinesForContact(c context.Context, r *http.Request, email string) ([
 	}
 
 	if len(contact.Data.WritingInformation.RSS) == 0 {
-		log.Errorf(c, "%v", err)
 		return nil, nil, 0, 0, errors.New("This contact has no RSS feeds")
 	}
 
