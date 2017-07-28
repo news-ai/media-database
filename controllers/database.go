@@ -28,6 +28,37 @@ import (
 * Private methods
  */
 
+type searchMediaDatabaseInner struct {
+	Beats           []string `json:"beats"`
+	OccasionalBeats []string `json:"occasionalBeats"`
+	IsFreelancer    bool     `json:"isFreelancer"`
+
+	Location string `json:"location"`
+
+	Organizations []string `json:"organizations"`
+
+	RSS struct {
+		Headline        string `json:"headline"`
+		IncludeNewsBody bool   `json:"searchNewsBody"`
+	} `json:"rss"`
+
+	// Search Instagram description
+	Instagram struct {
+		Description string `json:"description"`
+	} `json:"instagram"`
+
+	// Search Twitter-related things
+	Twitter struct {
+		Body            string `json:"body"`
+		UserDescription string `json:"userDescription"`
+	} `json:"twitter"`
+}
+
+type searchMediaDatabase struct {
+	Included searchMediaDatabaseInner `json:"included"`
+	Excluded searchMediaDatabaseInner `json:"excluded"`
+}
+
 type createMediaDatabaseContact struct {
 	Email string `json:"email"`
 
@@ -104,6 +135,14 @@ func GetMediaDatabaseProfile(c context.Context, r *http.Request, email string) (
 	}
 
 	return contactProfile.Data, nil, nil
+}
+
+/*
+* Search methods
+ */
+
+func SearchContactsInMediaDatabase(c context.Context, r *http.Request) (interface{}, interface{}, int, int, error) {
+
 }
 
 /*

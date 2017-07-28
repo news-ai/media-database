@@ -21,6 +21,9 @@ func handleDatabaseContactAction(c context.Context, r *http.Request, email strin
 	switch r.Method {
 	case "GET":
 		switch action {
+		case "search":
+			val, included, count, total, err := controllers.SearchContactsInMediaDatabase(c, r)
+			return api.BaseResponseHandler(val, included, count, total, err, r)
 		case "tweets":
 			val, included, count, total, err := controllers.GetTweetsForContact(c, r, email)
 			return api.BaseResponseHandler(val, included, count, total, err, r)
