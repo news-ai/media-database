@@ -28,42 +28,6 @@ import (
 * Private methods
  */
 
-type searchMediaDatabaseInner struct {
-	Beats           []string `json:"beats"`
-	OccasionalBeats []string `json:"occasionalBeats"`
-	IsFreelancer    bool     `json:"isFreelancer"`
-
-	Locations     []string `json:"locations"`
-	Organizations []string `json:"organizations"`
-
-	// Search RSS-related fields
-	RSS struct {
-		Headline    string `json:"headline"`
-		IncludeBody bool   `json:"includeBody"`
-	} `json:"rss"`
-
-	// Search Instagram-related fields
-	Instagram struct {
-		Description string `json:"description"`
-	} `json:"instagram"`
-
-	// Search Twitter-related fields
-	Twitter struct {
-		TweetBody       string `json:"tweetbody"`
-		UserDescription string `json:"userDescription"`
-	} `json:"twitter"`
-
-	Time struct {
-		From time.Time `json:"from"`
-		To   time.Time `json:"to"`
-	} `json:"time"`
-}
-
-type searchMediaDatabase struct {
-	Included searchMediaDatabaseInner `json:"included"`
-	Excluded searchMediaDatabaseInner `json:"excluded"`
-}
-
 type createMediaDatabaseContact struct {
 	Email string `json:"email"`
 
@@ -147,7 +111,22 @@ func GetMediaDatabaseProfile(c context.Context, r *http.Request, email string) (
  */
 
 func SearchContactsInMediaDatabase(c context.Context, r *http.Request) (interface{}, interface{}, int, int, error) {
-	return nil, nil, 0, 0, nil
+	buf, _ := ioutil.ReadAll(r.Body)
+	decoder := ffjson.NewDecoder()
+	var searchQuery search.SearchMediaDatabaseQuery
+	err := decoder.Decode(buf, &searchQuery)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return nil, nil, 0, 0, err
+	}
+
+	contacts, hits, total, err := search.SearchContactsInESMediaDatabase(c, r, searchQuery)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return nil, nil, 0, 0, err
+	}
+
+	return contacts, nil, hits, total, nil
 }
 
 /*
