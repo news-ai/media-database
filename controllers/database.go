@@ -35,6 +35,7 @@ type createMediaDatabaseContact struct {
 		Beats           []string `json:"beats"`
 		OccasionalBeats []string `json:"occasionalBeats"`
 		IsFreelancer    bool     `json:"isFreelancer"`
+		IsInfluencer    bool     `json:"isInfluencer"`
 		RSS             []string `json:"rss"`
 	} `json:"writingInformation"`
 

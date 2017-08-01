@@ -21,9 +21,6 @@ func handleDatabaseContactAction(c context.Context, r *http.Request, email strin
 	switch r.Method {
 	case "GET":
 		switch action {
-		case "search":
-			val, included, count, total, err := controllers.SearchContactsInMediaDatabase(c, r)
-			return api.BaseResponseHandler(val, included, count, total, err, r)
 		case "tweets":
 			val, included, count, total, err := controllers.GetTweetsForContact(c, r, email)
 			return api.BaseResponseHandler(val, included, count, total, err, r)
@@ -39,14 +36,20 @@ func handleDatabaseContactAction(c context.Context, r *http.Request, email strin
 	return nil, errors.New("method not implemented")
 }
 
-func handleDatabaseContact(c context.Context, r *http.Request, email string) (interface{}, error) {
+func handleDatabaseContact(c context.Context, r *http.Request, id string) (interface{}, error) {
 	switch r.Method {
 	case "GET":
-		return api.BaseSingleResponseHandler(controllers.GetMediaDatabaseProfile(c, r, email))
+		return api.BaseSingleResponseHandler(controllers.GetMediaDatabaseProfile(c, r, id))
 	case "PATCH":
-		return api.BaseSingleResponseHandler(controllers.UpdateContactInMediaDatabase(c, r, email))
+		return api.BaseSingleResponseHandler(controllers.UpdateContactInMediaDatabase(c, r, id))
 	case "DELETE":
-		return api.BaseSingleResponseHandler(controllers.DeleteContactFromMediaDatabase(c, r, email))
+		return api.BaseSingleResponseHandler(controllers.DeleteContactFromMediaDatabase(c, r, id))
+	case "POST":
+		switch id {
+		case "search":
+			val, included, count, total, err := controllers.SearchContactsInMediaDatabase(c, r)
+			return api.BaseResponseHandler(val, included, count, total, err, r)
+		}
 	}
 	return nil, errors.New("method not implemented")
 }
