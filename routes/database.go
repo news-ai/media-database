@@ -39,6 +39,10 @@ func handleDatabaseContactAction(c context.Context, r *http.Request, email strin
 func handleDatabaseContact(c context.Context, r *http.Request, id string) (interface{}, error) {
 	switch r.Method {
 	case "GET":
+		if id == "locations" {
+			val, included, count, total, err := controllers.GetLocationsForContacts(c, r)
+			return api.BaseResponseHandler(val, included, count, total, err, r)
+		}
 		return api.BaseSingleResponseHandler(controllers.GetMediaDatabaseProfile(c, r, id))
 	case "PATCH":
 		return api.BaseSingleResponseHandler(controllers.UpdateContactInMediaDatabase(c, r, id))

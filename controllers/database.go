@@ -19,6 +19,8 @@ import (
 	"github.com/news-ai/pitch/models"
 	"github.com/news-ai/pitch/sync"
 
+	"github.com/news-ai/web/middleware"
+
 	tabulaeModels "github.com/news-ai/tabulae/models"
 
 	"github.com/news-ai/api/search"
@@ -208,6 +210,30 @@ func GetTwitterTimeseriesForContact(c context.Context, r *http.Request, email st
 	}
 
 	return twitterTimeseries, nil, nil
+}
+
+/*
+* Location methods
+ */
+
+func GetLocationsForContacts(c context.Context, r *http.Request) (interface{}, interface{}, int, int, error)  {
+	// variables to define country, state, and city
+	country := middleware.GetParambyId(r, "country")
+	state :=  middleware.GetParambyId(r, "state")
+	city :=  middleware.GetParambyId(r, "city")
+
+
+	if country != "" && state == "" && city == "" {
+		countryLocations, hits, total, err := search.ESCountryLocation(c, r, country)
+		if err != nil {
+			log.Errorf(c, "%v", err)
+			return nil, nil, 0, 0, err
+		}
+
+		return countryLocations, nil, hits, total, nil
+	}
+
+	return nil, nil, 0, 0, nil
 }
 
 /*
