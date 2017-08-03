@@ -216,12 +216,11 @@ func GetTwitterTimeseriesForContact(c context.Context, r *http.Request, email st
 * Location methods
  */
 
-func GetLocationsForContacts(c context.Context, r *http.Request) (interface{}, interface{}, int, int, error)  {
+func GetLocationsForContacts(c context.Context, r *http.Request) (interface{}, interface{}, int, int, error) {
 	// variables to define country, state, and city
 	country := middleware.GetParambyId(r, "country")
-	state :=  middleware.GetParambyId(r, "state")
-	city :=  middleware.GetParambyId(r, "city")
-
+	state := middleware.GetParambyId(r, "state")
+	city := middleware.GetParambyId(r, "city")
 
 	if country != "" && state == "" && city == "" {
 		countryLocations, hits, total, err := search.ESCountryLocation(c, r, country)
@@ -231,6 +230,22 @@ func GetLocationsForContacts(c context.Context, r *http.Request) (interface{}, i
 		}
 
 		return countryLocations, nil, hits, total, nil
+	} else if country != "" && state != "" && city == "" {
+		stateLocations, hits, total, err := search.ESStateLocation(c, r, state, country)
+		if err != nil {
+			log.Errorf(c, "%v", err)
+			return nil, nil, 0, 0, err
+		}
+
+		return stateLocations, nil, hits, total, nil
+	} else if country != "" && state != "" && city != "" {
+		cityLocations, hits, total, err := search.ESCityLocation(c, r, city, state, country)
+		if err != nil {
+			log.Errorf(c, "%v", err)
+			return nil, nil, 0, 0, err
+		}
+
+		return cityLocations, nil, hits, total, nil
 	}
 
 	return nil, nil, 0, 0, nil
