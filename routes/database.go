@@ -42,6 +42,8 @@ func handleDatabaseContact(c context.Context, r *http.Request, id string) (inter
 		if id == "locations" {
 			val, included, count, total, err := controllers.GetLocationsForContacts(c, r)
 			return api.BaseResponseHandler(val, included, count, total, err, r)
+		} else if id == "_mapping" {
+			return api.BaseSingleResponseHandler(controllers.GetSchemaForContacts(c, r))
 		}
 		return api.BaseSingleResponseHandler(controllers.GetMediaDatabaseProfile(c, r, id))
 	case "PATCH":

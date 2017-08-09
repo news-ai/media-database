@@ -21,6 +21,7 @@ import (
 
 	"github.com/news-ai/web/middleware"
 
+	pitchModels "github.com/news-ai/pitch/models"
 	tabulaeModels "github.com/news-ai/tabulae/models"
 
 	"github.com/news-ai/api/search"
@@ -33,6 +34,70 @@ import (
 type createMediaDatabaseContact struct {
 	Email string `json:"email"`
 
+	ContactInfo struct {
+		GivenName  string `json:"givenName"`
+		FullName   string `json:"fullName"`
+		FamilyName string `json:"familyName"`
+		Websites   []struct {
+			URL string `json:"url"`
+		} `json:"websites"`
+	} `json:"contactInfo"`
+
+	Demographics struct {
+		LocationDeduced struct {
+			City struct {
+				Name string `json:"name"`
+			} `json:"city"`
+			Country struct {
+				Code    string `json:"code"`
+				Name    string `json:"name"`
+				Deduced bool   `json:"deduced"`
+			} `json:"country"`
+			DeducedLocation string `json:"deducedLocation"`
+			State           struct {
+				Code string `json:"code"`
+				Name string `json:"name"`
+			} `json:"state"`
+			NormalizedLocation string  `json:"normalizedLocation"`
+			Likelihood         float64 `json:"likelihood"`
+			Continent          struct {
+				Name    string `json:"name"`
+				Deduced bool   `json:"deduced"`
+			} `json:"continent"`
+		} `json:"locationDeduced"`
+		Gender          string `json:"gender"`
+		LocationGeneral string `json:"locationGeneral"`
+	} `json:"demographics"`
+
+	Photos []struct {
+		URL       string `json:"url"`
+		TypeID    string `json:"typeId"`
+		IsPrimary bool   `json:"isPrimary,omitempty"`
+		Type      string `json:"type"`
+		TypeName  string `json:"typeName"`
+	} `json:"photos"`
+
+	SocialProfiles []pitchModels.SocialProfiles `json:"socialProfiles"`
+
+	DigitalFootprint struct {
+		Topics []struct {
+			Value    string `json:"value"`
+			Provider string `json:"provider"`
+		} `json:"topics"`
+		Scores []struct {
+			Type     string `json:"type"`
+			Value    int    `json:"value"`
+			Provider string `json:"provider"`
+		} `json:"scores"`
+	} `json:"digitalFootprint"`
+
+	Organizations []struct {
+		StartDate string `json:"startDate,omitempty"`
+		EndDate   string `json:"endDate,omitempty"`
+		Name      string `json:"name,omitempty"`
+		Title     string `json:"title"`
+	} `json:"organizations"`
+
 	WritingInformation struct {
 		Beats           []string `json:"beats"`
 		OccasionalBeats []string `json:"occasionalBeats"`
@@ -40,16 +105,6 @@ type createMediaDatabaseContact struct {
 		IsInfluencer    bool     `json:"isInfluencer"`
 		RSS             []string `json:"rss"`
 	} `json:"writingInformation"`
-
-	SocialInformation struct {
-		TwitterUsername  string `json:"twitterusername"`
-		LinkedinUsername string `json:"linkedinusername"`
-		FacebookUsername string `json:"facebookusername"`
-	} `json:"socialInformation"`
-
-	PersonalInformation struct {
-		Location string `json:"location"`
-	} `json:"personalInformation"`
 }
 
 /*
@@ -88,6 +143,16 @@ func getMediaDatabaseContactSocialNetworkUsername(c context.Context, r *http.Req
 /*
 * Get methods
  */
+
+func GetSchemaForContacts(c context.Context, r *http.Request) (interface{}, interface{}, error) {
+	mapping, err := search.GetMediaDatabaseContactsSchema(c)
+	if err != nil {
+		log.Errorf(c, "%v", err)
+		return nil, nil, err
+	}
+
+	return mapping, nil, nil
+}
 
 func GetMediaDatabaseProfiles(c context.Context, r *http.Request) (interface{}, interface{}, int, int, error) {
 	contacts, hits, total, err := search.SearchESMediaDatabase(c, r)
@@ -344,6 +409,12 @@ func UpdateContactInMediaDatabase(c context.Context, r *http.Request, email stri
 
 	// Alter contact details before writing it to Media Database
 	contactProfile.Data.Updated = time.Now()
+	contactProfile.Data.ContactInfo = createContact.ContactInfo
+	contactProfile.Data.Demographics = createContact.Demographics
+	contactProfile.Data.SocialProfiles = createContact.SocialProfiles
+	contactProfile.Data.DigitalFootprint = createContact.DigitalFootprint
+	contactProfile.Data.Organizations = createContact.Organizations
+	contactProfile.Data.Photos = createContact.Photos
 	contactProfile.Data.WritingInformation = createContact.WritingInformation
 
 	// Add contact to Media Database with approved flag off
