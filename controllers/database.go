@@ -34,77 +34,13 @@ import (
 type createMediaDatabaseContact struct {
 	Email string `json:"email"`
 
-	ContactInfo struct {
-		GivenName  string `json:"givenName"`
-		FullName   string `json:"fullName"`
-		FamilyName string `json:"familyName"`
-		Websites   []struct {
-			URL string `json:"url"`
-		} `json:"websites"`
-	} `json:"contactInfo"`
-
-	Demographics struct {
-		LocationDeduced struct {
-			City struct {
-				Name string `json:"name"`
-			} `json:"city"`
-			Country struct {
-				Code    string `json:"code"`
-				Name    string `json:"name"`
-				Deduced bool   `json:"deduced"`
-			} `json:"country"`
-			DeducedLocation string `json:"deducedLocation"`
-			State           struct {
-				Code string `json:"code"`
-				Name string `json:"name"`
-			} `json:"state"`
-			NormalizedLocation string  `json:"normalizedLocation"`
-			Likelihood         float64 `json:"likelihood"`
-			Continent          struct {
-				Name    string `json:"name"`
-				Deduced bool   `json:"deduced"`
-			} `json:"continent"`
-		} `json:"locationDeduced"`
-		Gender          string `json:"gender"`
-		LocationGeneral string `json:"locationGeneral"`
-	} `json:"demographics"`
-
-	Photos []struct {
-		URL       string `json:"url"`
-		TypeID    string `json:"typeId"`
-		IsPrimary bool   `json:"isPrimary,omitempty"`
-		Type      string `json:"type"`
-		TypeName  string `json:"typeName"`
-	} `json:"photos"`
-
-	SocialProfiles []pitchModels.SocialProfiles `json:"socialProfiles"`
-
-	DigitalFootprint struct {
-		Topics []struct {
-			Value    string `json:"value"`
-			Provider string `json:"provider"`
-		} `json:"topics"`
-		Scores []struct {
-			Type     string `json:"type"`
-			Value    int    `json:"value"`
-			Provider string `json:"provider"`
-		} `json:"scores"`
-	} `json:"digitalFootprint"`
-
-	Organizations []struct {
-		StartDate string `json:"startDate,omitempty"`
-		EndDate   string `json:"endDate,omitempty"`
-		Name      string `json:"name,omitempty"`
-		Title     string `json:"title"`
-	} `json:"organizations"`
-
-	WritingInformation struct {
-		Beats           []string `json:"beats"`
-		OccasionalBeats []string `json:"occasionalBeats"`
-		IsFreelancer    bool     `json:"isFreelancer"`
-		IsInfluencer    bool     `json:"isInfluencer"`
-		RSS             []string `json:"rss"`
-	} `json:"writingInformation"`
+	ContactInfo        pitchModels.ContactInfo        `json:"contactInfo"`
+	Demographics       pitchModels.Demographics       `json:"demographics"`
+	Photos             []pitchModels.Photo            `json:"photos"`
+	SocialProfiles     []pitchModels.SocialProfiles   `json:"socialProfiles"`
+	DigitalFootprint   pitchModels.DigitalFootprint   `json:"digitalFootprint"`
+	Organizations      []pitchModels.Organization     `json:"organizations"`
+	WritingInformation pitchModels.WritingInformation `json:"writingInformation"`
 }
 
 /*
