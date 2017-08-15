@@ -43,7 +43,7 @@ type DigitalFootprint struct {
 	} `json:"scores"`
 }
 
-type Demographics struct {
+type Demographic struct {
 	LocationDeduced struct {
 		City struct {
 			Name string `json:"name"`
@@ -96,7 +96,7 @@ type MediaDatabaseProfile struct {
 		Organizations    []Organization   `json:"organizations"`
 		DigitalFootprint DigitalFootprint `json:"digitalFootprint"`
 		SocialProfiles   []SocialProfile  `json:"socialProfiles"`
-		Demographics     Demographics     `json:"demographics"`
+		Demographics     Demographic      `json:"demographics"`
 		Photos           []Photo          `json:"photos"`
 		ContactInfo      ContactInfo      `json:"contactInfo"`
 

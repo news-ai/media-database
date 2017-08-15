@@ -35,9 +35,9 @@ type createMediaDatabaseContact struct {
 	Email string `json:"email"`
 
 	ContactInfo        pitchModels.ContactInfo        `json:"contactInfo"`
-	Demographics       pitchModels.Demographics       `json:"demographics"`
+	Demographics       pitchModels.Demographic        `json:"demographics"`
 	Photos             []pitchModels.Photo            `json:"photos"`
-	SocialProfiles     []pitchModels.SocialProfiles   `json:"socialProfiles"`
+	SocialProfiles     []pitchModels.SocialProfile    `json:"socialProfiles"`
 	DigitalFootprint   pitchModels.DigitalFootprint   `json:"digitalFootprint"`
 	Organizations      []pitchModels.Organization     `json:"organizations"`
 	WritingInformation pitchModels.WritingInformation `json:"writingInformation"`
