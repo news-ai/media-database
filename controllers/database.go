@@ -309,6 +309,7 @@ func CreateContactInMediaDatabase(c context.Context, r *http.Request) (interface
 		log.Errorf(c, "%v", err)
 		return models.MediaDatabaseProfile{}, nil, 0, 0, err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		return models.MediaDatabaseProfile{}, nil, 0, 0, errors.New("Fail to POST data to Enhance")
@@ -371,6 +372,7 @@ func UpdateContactInMediaDatabase(c context.Context, r *http.Request, email stri
 		log.Errorf(c, "%v", err)
 		return models.MediaDatabaseProfile{}, nil, err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		return models.MediaDatabaseProfile{}, nil, errors.New("Fail to POST data to Enhance")
