@@ -1,7 +1,7 @@
 package models
 
 import (
-	apiModels "github.com/news-ai/api/models"
+	apiModels "github.com/news-ai/api-v1/models"
 )
 
 type Publication struct {

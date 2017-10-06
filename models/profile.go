@@ -1,17 +1,10 @@
 package models
 
 import (
-	"net/http"
-	"time"
+	// "net/http"
+	// "time"
 
-	"golang.org/x/net/context"
-
-	"google.golang.org/appengine/datastore"
-	"google.golang.org/appengine/log"
-
-	apiModels "github.com/news-ai/api/models"
-
-	"github.com/qedus/nds"
+	apiModels "github.com/news-ai/api-v1/models"
 )
 
 type ProfileShare struct {
@@ -55,62 +48,62 @@ type PRProfile struct {
 * Public methods
  */
 
-func (jp *JournalistProfile) Key(c context.Context) *datastore.Key {
-	return jp.BaseKey(c, "JournalistProfile")
-}
+// func (jp *JournalistProfile) Key(c context.Context) *datastore.Key {
+// 	return jp.BaseKey(c, "JournalistProfile")
+// }
 
-func (prp *PRProfile) Key(c context.Context) *datastore.Key {
-	return prp.BaseKey(c, "PRProfile")
-}
+// func (prp *PRProfile) Key(c context.Context) *datastore.Key {
+// 	return prp.BaseKey(c, "PRProfile")
+// }
 
-/*
-* Create methods
- */
+// /*
+// * Create methods
+//  */
 
-func (jp *JournalistProfile) Create(c context.Context, r *http.Request, currentUser apiModels.User) (*JournalistProfile, error) {
-	jp.CreatedBy = currentUser.Id
-	jp.Created = time.Now()
+// func (jp *JournalistProfile) Create(c context.Context, r *http.Request, currentUser apiModels.User) (*JournalistProfile, error) {
+// 	jp.CreatedBy = currentUser.Id
+// 	jp.Created = time.Now()
 
-	_, err := jp.Save(c, r)
-	return jp, err
-}
+// 	_, err := jp.Save(c, r)
+// 	return jp, err
+// }
 
-func (prp *PRProfile) Create(c context.Context, r *http.Request, currentUser apiModels.User) (*PRProfile, error) {
-	prp.CreatedBy = currentUser.Id
-	prp.Created = time.Now()
+// func (prp *PRProfile) Create(c context.Context, r *http.Request, currentUser apiModels.User) (*PRProfile, error) {
+// 	prp.CreatedBy = currentUser.Id
+// 	prp.Created = time.Now()
 
-	_, err := prp.Save(c, r)
-	return prp, err
-}
+// 	_, err := prp.Save(c, r)
+// 	return prp, err
+// }
 
-/*
-* Update methods
- */
+// /*
+// * Update methods
+//  */
 
-// Function to save a new journalist profile into App Engine
-func (jp *JournalistProfile) Save(c context.Context, r *http.Request) (*JournalistProfile, error) {
-	// Update the Updated time
-	jp.Updated = time.Now()
+// // Function to save a new journalist profile into App Engine
+// func (jp *JournalistProfile) Save(c context.Context, r *http.Request) (*JournalistProfile, error) {
+// 	// Update the Updated time
+// 	jp.Updated = time.Now()
 
-	k, err := nds.Put(c, jp.BaseKey(c, "JournalistProfile"), jp)
-	if err != nil {
-		log.Errorf(c, "%v", err)
-		return nil, err
-	}
-	jp.Id = k.IntID()
-	return jp, nil
-}
+// 	k, err := nds.Put(c, jp.BaseKey(c, "JournalistProfile"), jp)
+// 	if err != nil {
+// 		log.Errorf(c, "%v", err)
+// 		return nil, err
+// 	}
+// 	jp.Id = k.IntID()
+// 	return jp, nil
+// }
 
-// Function to save a new pr profile into App Engine
-func (prp *PRProfile) Save(c context.Context, r *http.Request) (*PRProfile, error) {
-	// Update the Updated time
-	prp.Updated = time.Now()
+// // Function to save a new pr profile into App Engine
+// func (prp *PRProfile) Save(c context.Context, r *http.Request) (*PRProfile, error) {
+// 	// Update the Updated time
+// 	prp.Updated = time.Now()
 
-	k, err := nds.Put(c, prp.BaseKey(c, "PRProfile"), prp)
-	if err != nil {
-		log.Errorf(c, "%v", err)
-		return nil, err
-	}
-	prp.Id = k.IntID()
-	return prp, nil
-}
+// 	k, err := nds.Put(c, prp.BaseKey(c, "PRProfile"), prp)
+// 	if err != nil {
+// 		log.Errorf(c, "%v", err)
+// 		return nil, err
+// 	}
+// 	prp.Id = k.IntID()
+// 	return prp, nil
+// }

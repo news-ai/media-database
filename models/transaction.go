@@ -1,17 +1,10 @@
 package models
 
 import (
-	"net/http"
-	"time"
+	// "net/http"
+	// "time"
 
-	"golang.org/x/net/context"
-
-	"google.golang.org/appengine/datastore"
-	"google.golang.org/appengine/log"
-
-	apiModels "github.com/news-ai/api/models"
-
-	"github.com/qedus/nds"
+	apiModels "github.com/news-ai/api-v1/models"
 )
 
 type Transaction struct {
@@ -27,36 +20,34 @@ type Transaction struct {
 * Public methods
  */
 
-func (t *Transaction) Key(c context.Context) *datastore.Key {
-	return t.BaseKey(c, "Transaction")
-}
+// func (t *Transaction) Key(c context.Context) *datastore.Key {
+// 	return t.BaseKey(c, "Transaction")
+// }
 
-/*
-* Create methods
- */
+// /*
+// * Create methods
+//  */
 
-func (t *Transaction) Create(c context.Context, r *http.Request, currentUser apiModels.User) (*Transaction, error) {
-	t.CreatedBy = currentUser.Id
-	t.Created = time.Now()
+// func (t *Transaction) Create(c context.Context, r *http.Request, currentUser apiModels.User) (*Transaction, error) {
+// 	t.CreatedBy = currentUser.Id
+// 	t.Created = time.Now()
 
-	_, err := t.Save(c, r)
-	return t, err
-}
+// 	_, err := t.Save(c, r)
+// 	return t, err
+// }
 
-/*
-* Update methods
- */
+// * Update methods
 
-// Function to save a new wallet into App Engine
-func (t *Transaction) Save(c context.Context, r *http.Request) (*Transaction, error) {
-	// Update the Updated time
-	t.Updated = time.Now()
+// // Function to save a new wallet into App Engine
+// func (t *Transaction) Save(c context.Context, r *http.Request) (*Transaction, error) {
+// 	// Update the Updated time
+// 	t.Updated = time.Now()
 
-	k, err := nds.Put(c, t.BaseKey(c, "Transaction"), t)
-	if err != nil {
-		log.Errorf(c, "%v", err)
-		return nil, err
-	}
-	t.Id = k.IntID()
-	return t, nil
-}
+// 	k, err := nds.Put(c, t.BaseKey(c, "Transaction"), t)
+// 	if err != nil {
+// 		log.Errorf(c, "%v", err)
+// 		return nil, err
+// 	}
+// 	t.Id = k.IntID()
+// 	return t, nil
+// }
